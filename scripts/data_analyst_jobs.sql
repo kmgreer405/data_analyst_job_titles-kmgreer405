@@ -97,3 +97,17 @@ AND title NOT LIKE '%Analytics%';
 --  - Disregard any postings where the domain is NULL. 
 --  - Order your results so that the domain with the greatest number of `hard to fill` jobs is at the top. 
 --   - Which three industries are in the top 4 on this list? How many jobs have been listed for more than 3 weeks for each of the top 4?
+SELECT domain, COUNT(domain)
+FROM data_analyst_jobs
+WHERE skill = 'SQL'
+AND days_since_posting > 21
+AND domain IS NOT NULL
+GROUP BY domain
+ORDER BY COUNT(domain) DESC;
+
+-- Top 4 Industries
+-- 1) Consulting and Business Services 5 job postings
+-- 2) Consumer Goods and Services 2 job postings
+-- 3) Computers and Electronics 1 job posting
+-- 4) Internet and Software 1 job posting
+
