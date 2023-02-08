@@ -25,6 +25,12 @@ OR location = 'KY';
 -- There are 27 postings in Tennessee or Kentucky
 
 -- 4.	How many postings in Tennessee have a star rating above 4?
+SELECT COUNT(*)
+FROM data_analyst_jobs
+WHERE location = 'TN'
+AND star_rating > 4;
+
+-- There are 3 postings
 
 -- 5.	How many postings in the dataset have a review count between 500 and 1000?
 
