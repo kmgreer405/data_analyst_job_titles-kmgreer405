@@ -111,3 +111,20 @@ ORDER BY COUNT(domain) DESC;
 -- 3) Computers and Electronics 1 job posting
 -- 4) Internet and Software 1 job posting
 
+-- 1. For each company, give the company name and the difference between its star rating and the national average star rating.
+SELECT DISTINCT(company), (star_rating - avg_star ) AS star_avg
+FROM data_analyst_jobs,
+	(SELECT AVG(star_rating) AS avg_star
+	FROM data_analyst_jobs) AS daj2
+ORDER BY company;
+	
+-- 2. Using a correlated subquery: For each company, give the company name, its domain, its star rating, and its domain average star rating
+SELECT DISTINCT(company), d1.domain, star_rating, domain_avg
+FROM data_analyst_jobs AS d1,
+	(SELECT DISTINCT(domain), AVG(star_rating)
+	FROM data_analyst_jobs
+	GROUP BY domain) AS domain_avg
+GROUP BY company, d1.domain, d1.star_rating;
+
+
+-- 3. Repeat question 2 using a CTE instead of a correlated subquery
