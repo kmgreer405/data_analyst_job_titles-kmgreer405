@@ -24,6 +24,15 @@ OR location = 'KY';
 
 -- There are 27 postings in Tennessee or Kentucky
 
+SELECT COUNT(*) AS ky_tn,
+	(SELECT COUNT(*)
+	FROM data_analyst_jobs
+	WHERE location = 'TN') AS tn
+FROM data_analyst_jobs
+WHERE location in ('TN', 'KY');
+
+-- Both at the same time.
+
 -- 4.	How many postings in Tennessee have a star rating above 4?
 SELECT COUNT(*)
 FROM data_analyst_jobs
@@ -81,11 +90,11 @@ ORDER BY AVG(star_rating) DESC;
 --General Motors has the highest average rating at 4.19
 
 -- 11.	Find all the job titles that contain the word ‘Analyst’. How many different job titles are there? 
-SELECT COUNT(title)
+SELECT COUNT(DISTINCT(title))
 FROM data_analyst_jobs
 WHERE LOWER(title) LIKE '%analyst%';
 
---1669 job titles
+--774 job titles
 
 -- 12.	How many different job titles do not contain either the word ‘Analyst’ or the word ‘Analytics’? What word do these positions have in common?
 SELECT title
@@ -100,19 +109,19 @@ AND LOWER(title) NOT LIKE '%analytics%';
 --  - Disregard any postings where the domain is NULL. 
 --  - Order your results so that the domain with the greatest number of `hard to fill` jobs is at the top. 
 --   - Which three industries are in the top 4 on this list? How many jobs have been listed for more than 3 weeks for each of the top 4?
-SELECT domain, COUNT(title)
+SELECT domain, COUNT(domain)
 FROM data_analyst_jobs
-WHERE skill = 'SQL'
+WHERE skill LIKE '%SQL%'
 AND days_since_posting > 21
 AND domain IS NOT NULL
 GROUP BY domain
-ORDER BY COUNT(title) DESC;
+ORDER BY COUNT(domain) DESC;
 
 -- Top 4 Industries
--- 1) Consulting and Business Services 5 job postings
--- 2) Consumer Goods and Services 2 job postings
--- 3) Computers and Electronics 1 job posting
--- 4) Internet and Software 1 job posting
+-- 1) Internet and Software 62 postings
+-- 2) Banks and Financial Services 61 postings
+-- 3) Consulting and Business Services 57 postings
+-- 4) Health Care 52 postings
 
 -- 1. For each company, give the company name and the difference between its star rating and the national average star rating.
 SELECT DISTINCT(company), (star_rating - avg_star ) AS star_avg
@@ -122,12 +131,21 @@ FROM data_analyst_jobs,
 ORDER BY company;
 	
 -- 2. Using a correlated subquery: For each company, give the company name, its domain, its star rating, and its domain average star rating
-SELECT DISTINCT(company), d1.domain, star_rating, domain_avg
+SELECT DISTINCT(company), d1.domain, star_rating, avg_domain
 FROM data_analyst_jobs AS d1,
-	(SELECT DISTINCT(domain), AVG(star_rating)
+	(SELECT DISTINCT(domain), AVG(star_rating) AS avg_domain
 	FROM data_analyst_jobs
-	GROUP BY domain) AS domain_avg
-GROUP BY company, d1.domain, d1.star_rating;
+	GROUP BY domain) AS d2
+GROUP BY company, d1.domain, d1.star_rating, avg_domain;
 
 
 -- 3. Repeat question 2 using a CTE instead of a correlated subquery
+WITH my_cte AS (
+	SELECT DISTINCT(domain), AVG(star_rating) AS avg_domain
+	FROM data_analyst_jobs
+	GROUP BY domain
+)
+SELECT DISTINCT(company), d2.domain, star_rating, avg_domain
+FROM data_analyst_jobs AS d2
+JOIN my_cte ON d2.domain = my_cte.domain
+GROUP BY company, d2.domain, star_rating, avg_domain;
